@@ -1,0 +1,176 @@
+CREATE TABLE clients (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(50),
+    prenom VARCHAR(50),
+    ville VARCHAR(50),
+    pays VARCHAR(50)
+);
+
+CREATE TABLE produits (
+    id SERIAL PRIMARY KEY,
+    nom_produit VARCHAR(100),
+    categorie VARCHAR(50),
+    prix DECIMAL(10,2),
+    stock INT
+);
+
+CREATE TABLE commandes (
+    id SERIAL PRIMARY KEY,
+    client_id INT,
+    date_commande DATE,
+    statut VARCHAR(30),
+
+    FOREIGN KEY (client_id) REFERENCES clients(id)
+);
+
+CREATE TABLE ventes (
+    id SERIAL PRIMARY KEY,
+    commande_id INT,
+    produit_id INT,
+    quantite INT,
+
+    FOREIGN KEY (commande_id) REFERENCES commandes(id),
+    FOREIGN KEY (produit_id) REFERENCES produits(id)
+);
+
+INSERT INTO clients (nom, prenom, ville, pays) VALUES
+('Diallo','Mamadou','Dakar','Senegal'),
+('Ndiaye','Fatou','Dakar','Senegal'),
+('Ba','Omar','Thies','Senegal'),
+('Sarr','Aminata','Saint-Louis','Senegal'),
+('Fall','Ibrahima','Kaolack','Senegal'),
+('Gueye','Awa','Dakar','Senegal'),
+('Diop','Moussa','Rufisque','Senegal'),
+('Seck','Khady','Thies','Senegal'),
+('Cisse','Aliou','Touba','Senegal'),
+
+('Sy','Mariama','Dakar','Senegal'),
+('Faye','Abdou','Mbour','Senegal'),
+('Kane','Fatoumata','Louga','Senegal'),
+('Ndour','Babacar','Dakar','Senegal'),
+('Ba','Aissatou','Ziguinchor','Senegal'),
+('Ndao','Ousmane','Kaolack','Senegal'),
+('Sow','Rokhaya','Dakar','Senegal'),
+('Dieng','Mamadou','Thies','Senegal'),
+('Toure','Salimata','Tambacounda','Senegal'),
+('Camara','Ibrahima','Kolda','Senegal'),
+('Barry','Aminata','Dakar','Senegal');
+
+INSERT INTO produits (nom_produit, categorie, prix, stock) VALUES
+('Smartphone Samsung','Electronique',150000,30),
+('iPhone 13','Electronique',600000,15),
+('Ecouteurs Bluetooth','Electronique',15000,100),
+('Ordinateur HP','Electronique',350000,20),
+('Clavier Gamer','Electronique',25000,40),
+('Chaussures Nike','Mode',45000,50),
+('Sac à main','Mode',20000,35),
+('Montre','Accessoires',30000,60),
+('Casquette','Mode',8000,80),
+('Lunettes de soleil','Accessoires',12000,70),
+('Table','Maison',90000,10),
+('Chaise','Maison',25000,30),
+('Lampe LED','Maison',15000,45),
+('Ventilateur','Maison',40000,25),
+('Télévision 43 pouces','Electronique',250000,18),
+('Power Bank','Electronique',10000,90),
+('Chargeur rapide','Electronique',7000,120),
+('Sac à dos','Mode',18000,40),
+('Bracelet','Accessoires',5000,100),
+('Tapis','Maison',20000,20);
+
+INSERT INTO commandes (client_id, date_commande, statut) VALUES
+(1,'2026-01-10','livree'),
+(2,'2026-01-11','livree'),
+(3,'2026-01-12','livree'),
+(4,'2026-01-13','annulee'),
+(5,'2026-01-15','livree'),
+(6,'2026-01-16','livree'),
+(7,'2026-01-17','livree'),
+(8,'2026-01-18','en cours'),
+(9,'2026-01-19','livree'),
+(10,'2026-01-20','livree'),
+(11,'2026-01-22','livree'),
+(12,'2026-01-23','annulee'),
+(13,'2026-01-24','livree'),
+(14,'2026-01-25','livree'),
+(15,'2026-01-26','livree'),
+(16,'2026-01-27','livree'),
+(17,'2026-01-28','en cours'),
+(18,'2026-01-29','livree'),
+(19,'2026-01-30','livree'),
+(20,'2026-02-01','livree');
+
+INSERT INTO ventes (commande_id, produit_id, quantite) VALUES
+(1,1,1),
+(1,3,2),
+(2,6,1),
+(3,2,1),
+(3,16,2),
+(4,5,1),
+(5,10,2),
+(6,15,1),
+(7,4,1),
+(7,3,1),
+(8,7,1),
+(9,6,2),
+(10,1,1),
+(11,12,4),
+(12,14,1),
+(13,8,2),
+(14,9,3),
+(15,11,1),
+(16,13,2),
+(17,18,1),
+(18,2,1),
+(18,3,2),
+(19,20,1),
+(20,6,1),
+(20,16,3);
+---1️⃣Lister tous les produits triés du plus cher au moins cher
+
+SELECT * FROM produits
+ORDER BY prix DESC;
+
+---2️⃣ Quels produits coûtent plus de 50 000 FCFA ?
+
+SELECT * FROM produits
+WHERE prix > 50000;
+
+----3️⃣ Combien y a-t-il de clients dans la base ?
+SELECT count(*) FROM clients;
+
+---4️⃣ Combien de commandes ont été passées ?
+
+SELECT count(*) FROM commandes;
+
+---5️⃣ Quel est le prix moyen des produits ?
+
+SELECT AVG(prix) FROM produits;
+
+
+---6️⃣ Quel est le produit le plus cher ?
+SELECT MAX(prix) FROM produits;
+
+---7️⃣ Quelle est la quantité totale vendue ?
+SELECT sum(v.quantite * p.prix) as total_ventes
+FROM ventes v
+JOIN produits p ON produit_id = p.id;
+
+--8️⃣ Combien de produits avons-nous par catégorie ?
+--(utiliser GROUP BY)
+SELECT categorie, count(*) as nb_produits
+ FROM produits
+ GROUP BY categorie;
+
+---9️⃣ Quelle catégorie possède plus de 3 produits ?
+--(GROUP BY + HAVING)
+SELECT categorie, count(*) as nb_produits
+ FROM produits
+ GROUP BY categorie
+ HAVING count(*)>3
+ ORDER BY nb_produits DESC;
+--🔟 Quels sont les 5 produits les plus chers ?
+--(ORDER BY + LIMIT)
+SELECT nom_produit, prix FROM produits
+ORDER BY prix DESC
+LIMIT 5;
